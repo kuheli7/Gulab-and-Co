@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Minus, Plus, Sparkles, Trash2, MessageCircle, Truck, Store } from 'lucide-react'
+import { Minus, Plus, Trash2, MessageCircle, Truck, Store } from 'lucide-react'
 import { shop } from '../config/shop'
 import { useCart } from '../state/CartContext'
 import { money } from '../utils'
-import { submitOrder, whatsappOrderUrl } from '../lib/orders'
+import { buildOrder, whatsappOrderUrl } from '../lib/orders'
 import { navigate } from '../lib/router'
 import { Cta, Done, SectionHead } from '../components/Bits'
 
@@ -13,27 +13,32 @@ export default function Dabba() {
   const { items, count, subtotal, freeDelivery, change, clear } = useCart()
   const [mode, setMode] = useState('pickup')
   const [form, setForm] = useState({ name: '', phone: '', address: '', giftNote: '' })
-  const [busy, setBusy] = useState(false)
-  const [placed, setPlaced] = useState(null)
+  const [sent, setSent] = useState(null) // the order we handed to WhatsApp
   const [error, setError] = useState('')
 
   const delivery = mode === 'delivery' && !freeDelivery ? shop.deliveryFee : 0
   const total = subtotal + delivery
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value })
 
-  async function place(e) {
+  // Opens WhatsApp straight from the tap (no await in between, so phones don't block it as a popup).
+  // The cart is kept until the customer starts a new dabba, so they can go back and change things.
+  function sendOnWhatsApp(e) {
     e.preventDefault()
     if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\D/g, '').slice(-10))) return setError('Please enter a valid 10-digit mobile number.')
     if (mode === 'delivery' && form.address.trim().length < 8) return setError('Please add your full delivery address.')
     setError('')
-    setBusy(true)
-    const order = await submitOrder({
+    const order = buildOrder({
       mode, ...form, subtotal, delivery, total,
       items: items.map((i) => ({ name: i.name, qty: i.qty, price: i.price })),
     })
-    setBusy(false)
-    setPlaced(order)
+    window.open(whatsappOrderUrl(order), '_blank', 'noopener')
+    setSent(order)
+  }
+
+  function startNew() {
     clear()
+    setSent(null)
+    navigate('/sweets')
   }
 
   return (
@@ -41,19 +46,21 @@ export default function Dabba() {
       <div className="mx-auto max-w-5xl px-5">
         <SectionHead hindi="आपका डिब्बा" title="Your dabba" light>Review your sweets, tell us where it is going, and send the order on WhatsApp.</SectionHead>
 
-        {placed ? (
+        {sent ? (
           <div className="rounded-3xl border border-gold/40 bg-maroon p-6 sm:p-8">
             <Done
-              title="Shubh ho!"
+              icon={MessageCircle}
+              title="Almost there!"
               action={
                 <div className="mt-6 flex flex-col items-center gap-3">
-                  <Cta variant="gold" href={whatsappOrderUrl(placed)} target="_blank" rel="noreferrer"><MessageCircle size={18} /> Send order on WhatsApp</Cta>
-                  <button onClick={() => navigate('/sweets')} className="text-sm font-semibold text-gold underline underline-offset-4">Build another dabba</button>
+                  <Cta variant="gold" href={whatsappOrderUrl(sent)} target="_blank" rel="noreferrer"><MessageCircle size={18} /> Open WhatsApp again</Cta>
+                  <button onClick={() => setSent(null)} className="text-sm font-semibold text-gold underline underline-offset-4">Change my order</button>
+                  <button onClick={startNew} className="text-sm text-cream/60 underline underline-offset-4">Start a new dabba</button>
                 </div>
               }
             >
-              <p>Order #{placed.id} is saved. Tap the button to send it to the shop on WhatsApp; the shop confirms there.</p>
-              {shop.demoMode && <p className="mt-2 text-xs text-cream/50">Design preview: no payment was taken.</p>}
+              <p>Your order <strong className="text-gold">{sent.id}</strong> is written out in WhatsApp. <strong>Press Send there</strong> to place it. The shop only gets it once you do, and will confirm on WhatsApp.</p>
+              {shop.demoMode && <p className="mt-2 text-xs text-cream/50">Design preview: no payment is taken.</p>}
             </Done>
           </div>
         ) : !count ? (
@@ -66,7 +73,7 @@ export default function Dabba() {
             </div>
           </div>
         ) : (
-          <form onSubmit={place} className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-12">
+          <form onSubmit={sendOnWhatsApp} className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-12">
             <div className="rounded-3xl border border-gold/40 bg-maroon p-5 sm:p-7 lg:col-span-7">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-2xl">{count} {count > 1 ? 'boxes' : 'box'}</h3>
@@ -112,10 +119,10 @@ export default function Dabba() {
                   <div className="flex items-baseline justify-between pt-1"><dt className="font-hindi text-lg text-gold">कुल रक़म</dt><dd className="font-display text-3xl">{money(total)}</dd></div>
                 </dl>
                 {error && <p role="alert" className="mt-3 text-sm font-semibold text-rose-300">{error}</p>}
-                <button type="submit" disabled={busy} className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-gold text-lg font-bold text-maroon-deep transition-transform hover:-translate-y-0.5 disabled:opacity-60">
-                  {busy ? 'Placing…' : <>Place order <Sparkles size={18} /></>}
+                <button type="submit" className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-gold text-lg font-bold text-maroon-deep transition-transform hover:-translate-y-0.5">
+                  <MessageCircle size={20} /> Send order on WhatsApp
                 </button>
-                <p className="mt-3 text-center text-xs text-cream/50">You pay on {mode}. {shop.demoMode ? 'Design preview only.' : ''}</p>
+                <p className="mt-3 text-center text-xs text-cream/50">Opens WhatsApp with your order filled in. The shop receives it when you press Send there. You pay on {mode === 'delivery' ? 'delivery' : 'pickup'}.{shop.demoMode ? ' Design preview only.' : ''}</p>
               </div>
             </div>
           </form>

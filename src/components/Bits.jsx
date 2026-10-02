@@ -112,10 +112,10 @@ export function Cta({ children, to, href, variant = 'primary', onClick, classNam
   return <button onClick={onClick} className={cls} {...rest}>{children}</button>
 }
 
-export function Done({ title, children, action }) {
+export function Done({ title, children, action, icon: Icon = Check }) {
   return (
     <div role="status" className="py-6 text-center">
-      <span className="mx-auto grid size-14 place-items-center rounded-full bg-gold text-maroon-deep"><Check size={26} /></span>
+      <span className="mx-auto grid size-14 place-items-center rounded-full bg-gold text-maroon-deep"><Icon size={26} /></span>
       <h3 className="mt-4 font-display text-3xl">{title}</h3>
       <div className="mx-auto mt-2 max-w-sm text-cream/70">{children}</div>
       {action}

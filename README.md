@@ -110,9 +110,9 @@ Things to do before using it for a real shop:
 
 ## How an order reaches the shop
 
-Tapping **Place order** saves the order on the customer's device and shows a **Send order on WhatsApp** button. That button opens WhatsApp to the shop's number with the whole order typed out (items, quantities, total, name, phone and address), and the customer only presses Send. Payment is on pickup or delivery.
+Tapping **Send order on WhatsApp** opens WhatsApp to the shop's number with the whole order typed out (a reference like `GC-7K2F`, items, quantities, total, name, phone and address). The customer only has to press Send. **Nothing is stored on a server, so the shop receives the order only when the customer presses Send in WhatsApp.** Payment is on pickup or delivery.
 
-To send orders somewhere automatic later (a Google Sheet, a Telegram bot, Supabase), only `submitOrder()` in `src/lib/orders.js` needs to change.
+To send orders somewhere automatic later (a Google Sheet, a Telegram bot, Supabase), add the call in `sendOnWhatsApp()` in `src/pages/Dabba.jsx` (the order is built by `buildOrder()` in `src/lib/orders.js`) before WhatsApp opens. A backend would also let the shop see orders even when a customer never presses Send.
 
 ## Deploy
 

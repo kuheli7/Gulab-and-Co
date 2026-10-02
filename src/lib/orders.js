@@ -1,34 +1,25 @@
-// The one place an order "leaves" the app. Demo mode: a free wa.me link opens WhatsApp with the whole
-// order typed out; the guest only presses Send. To connect a real backend later (Google Sheet, Telegram,
-// Supabase...), add the call inside submitOrder(). Nothing else needs to change.
+// How an order reaches the shop.
+//
+// Demo / free mode: nothing is stored on a server. The site builds the whole order as a WhatsApp message
+// and opens WhatsApp to the shop's number (a free wa.me link: no account, API or fees). The order only
+// reaches the shop when the customer presses Send in WhatsApp.
+//
+// To receive orders somewhere automatic later (Google Sheet, Telegram bot, Supabase...), send the order
+// from buildOrder()'s caller (see place() in pages/Dabba.jsx) before opening WhatsApp.
 import { shop } from '../config/shop'
 import { money } from '../utils'
 
-const KEY = 'gc:orders'
+// A short reference the customer and the shop can both quote, e.g. GC-7K2F.
+// Time-based so two customers don't share a number.
+const reference = () => `GC-${Date.now().toString(36).slice(-4).toUpperCase()}`
 
-const read = () => {
-  try {
-    return JSON.parse(localStorage.getItem(KEY)) ?? []
-  } catch {
-    return []
-  }
-}
-
-export async function submitOrder(draft) {
-  await new Promise((resolve) => setTimeout(resolve, 600)) // stands in for the network round-trip
-  const orders = read()
-  const order = { ...draft, id: 2001 + orders.length, createdAt: new Date().toISOString() }
-  try {
-    localStorage.setItem(KEY, JSON.stringify([...orders, order]))
-  } catch {
-    /* storage can be blocked (private mode): the order still succeeds on screen */
-  }
-  return order
+export function buildOrder(draft) {
+  return { ...draft, id: reference(), createdAt: new Date().toISOString() }
 }
 
 export function whatsappOrderUrl(order) {
   const lines = [
-    `*New dabba order #${order.id} · ${shop.name}*`,
+    `*New dabba order ${order.id} · ${shop.name}*`,
     order.mode === 'delivery' ? `Delivery to: ${order.address}` : 'Pickup from the counter',
     `Name: ${order.name} (${order.phone})`,
     '',
