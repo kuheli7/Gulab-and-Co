@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gift, PackageCheck, Palette, Clock, Send } from 'lucide-react'
+import { ChevronDown, Gift, PackageCheck, Palette, Clock, Send } from 'lucide-react'
 import { shop } from '../config/shop'
 import { hampers, bySweetId } from '../data/sweets'
 import { useCart } from '../state/CartContext'
@@ -13,7 +13,7 @@ const field = 'h-12 w-full rounded-xl border border-ink/20 bg-white px-4 outline
 
 export default function Gifting() {
   const { addMany } = useCart()
-  const [f, setF] = useState({ name: '', phone: '', occasion: occasions[0], qty: '25', date: '', note: '' })
+  const [f, setF] = useState({ name: '', phone: '', occasion: '', qty: '', date: '', note: '' })
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
 
   const send = (e) => {
@@ -74,8 +74,14 @@ export default function Gifting() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <input required value={f.name} onChange={set('name')} placeholder="Your name" aria-label="Your name" autoComplete="name" className={field} />
               <input required type="tel" inputMode="numeric" value={f.phone} onChange={set('phone')} placeholder="Mobile number" aria-label="Mobile number" autoComplete="tel" className={field} />
-              <select value={f.occasion} onChange={set('occasion')} aria-label="Occasion" className={field}>{occasions.map((o) => <option key={o}>{o}</option>)}</select>
-              <input required type="number" min="10" value={f.qty} onChange={set('qty')} aria-label="Approximate number of dabbas" placeholder="No. of dabbas" className={field} />
+              <div className="relative">
+                <ChevronDown size={16} aria-hidden className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink/60" />
+                <select required value={f.occasion} onChange={set('occasion')} aria-label="Occasion" className={`${field} appearance-none pr-10 ${f.occasion ? '' : 'text-ink/40'}`}>
+                  <option value="" disabled>Select occasion</option>
+                  {occasions.map((o) => <option key={o} className="text-ink">{o}</option>)}
+                </select>
+              </div>
+              <input required type="number" inputMode="numeric" min="10" value={f.qty} onChange={set('qty')} aria-label="Approximate number of dabbas" placeholder="Number of dabbas (min. 10)" className={field} />
               <label className="sm:col-span-2 text-sm font-semibold text-ink/70">Needed by <input type="date" value={f.date} onChange={set('date')} className={`${field} mt-1`} /></label>
               <textarea rows={3} value={f.note} onChange={set('note')} placeholder="Anything we should know? Favourite sweets, custom note, budget…" aria-label="Notes" className={`${field} h-auto py-3 sm:col-span-2`} />
             </div>

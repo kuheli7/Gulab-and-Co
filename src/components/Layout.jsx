@@ -53,10 +53,14 @@ export function Header({ path }) {
     if (!open) return
     const close = () => setOpen(false)
     const outside = (e) => !headerRef.current?.contains(e.target) && close()
-    window.addEventListener('scroll', close, { passive: true })
+    // Phones fire tiny scroll events when the menu opens (header grows, address bar moves),
+    // so only a deliberate scroll of 60px+ closes the menu.
+    const startY = window.scrollY
+    const onScroll = () => Math.abs(window.scrollY - startY) > 60 && close()
+    window.addEventListener('scroll', onScroll, { passive: true })
     document.addEventListener('pointerdown', outside)
     return () => {
-      window.removeEventListener('scroll', close)
+      window.removeEventListener('scroll', onScroll)
       document.removeEventListener('pointerdown', outside)
     }
   }, [open])
@@ -87,7 +91,7 @@ export function Header({ path }) {
         {open && (
           <nav aria-label="Mobile menu" className="rise border-t border-gold/30 bg-cream px-5 pb-4 md:hidden">
             {[...links, { to: '/dabba', label: 'Your dabba' }].map((l) => (
-              <Link key={l.to} to={l.to} className="block border-b border-ink/10 py-3.5 font-bold last:border-0">{l.label}</Link>
+              <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="block border-b border-ink/10 py-3.5 font-bold last:border-0">{l.label}</Link>
             ))}
           </nav>
         )}
@@ -140,7 +144,7 @@ export function WhatsAppFab() {
 export function Footer() {
   const open = isOpenNow()
   return (
-    <footer className="jaali relative mt-8 bg-maroon-deep text-cream">
+    <footer className="jaali relative bg-maroon-deep text-cream">
       <div className="toran absolute inset-x-0 -top-px rotate-180" aria-hidden />
       <div className="mx-auto grid max-w-6xl gap-10 px-5 pb-10 pt-16 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
@@ -169,9 +173,10 @@ export function Footer() {
           <a href={chatUrl()} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-full bg-gold px-5 font-bold text-maroon-deep"><MessageCircle size={16} /> WhatsApp us</a>
         </div>
       </div>
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-cream/15 px-5 py-5 text-xs text-cream/50">
+      {/* extra bottom padding on phones so the maroon runs behind the fixed tab bar (no cream gap) */}
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-cream/15 px-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 text-xs text-cream/50 md:pb-5">
         <p>© {new Date().getFullYear()} {shop.name}</p>
-        {shop.demoMode && <p>Fictional brand · design preview · no real orders or payments</p>}
+        {shop.demoMode && <p className="pr-16 md:pr-0">Fictional brand · design preview · no real orders or payments</p>}
       </div>
     </footer>
   )
