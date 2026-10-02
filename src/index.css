@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* Colours and fonts live here. Change this block to re-skin the site. */
+@theme {
+  --font-display: "DM Serif Display", serif;
+  --font-hindi: "Tiro Devanagari Hindi", serif;
+  --font-body: "Karla", sans-serif;
+
+  --color-maroon: oklch(0.4 0.115 24);
+  --color-maroon-deep: oklch(0.3 0.095 22);
+  --color-gold: oklch(0.8 0.125 88);
+  --color-gold-soft: oklch(0.89 0.09 89);
+  --color-cream: oklch(0.978 0.019 80);
+  --color-sand: oklch(0.94 0.045 85);
+  --color-pista: oklch(0.82 0.09 145);
+  --color-ink: oklch(0.26 0.04 50);
+  --color-rose: oklch(0.6 0.19 18);
+  --color-wa: #1fa855;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 768px) { body { padding-bottom: 0; } }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--color-gold); outline-offset: 3px; }
+  input, textarea, select { font: inherit; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@utility glow { box-shadow: 0 24px 60px -28px oklch(0.3 0.095 22 / 0.45); }
+
+/* Faint jaali (lattice) pattern for the dark maroon sections */
+@utility jaali {
+  background-image:
+    radial-gradient(circle at 50% 50%, transparent 0 9px, oklch(0.8 0.125 88 / 0.10) 9px 10px, transparent 10px),
+    radial-gradient(circle at 0 0, transparent 0 9px, oklch(0.8 0.125 88 / 0.10) 9px 10px, transparent 10px),
+    radial-gradient(circle at 100% 0, transparent 0 9px, oklch(0.8 0.125 88 / 0.10) 9px 10px, transparent 10px),
+    radial-gradient(circle at 0 100%, transparent 0 9px, oklch(0.8 0.125 88 / 0.10) 9px 10px, transparent 10px),
+    radial-gradient(circle at 100% 100%, transparent 0 9px, oklch(0.8 0.125 88 / 0.10) 9px 10px, transparent 10px);
+  background-size: 40px 40px;
+  background-position: 0 0;
+}
+
+/* Decorative scalloped edge (toran-style) used above dark sections */
+@utility toran {
+  background:
+    radial-gradient(circle at 50% 0, var(--color-maroon-deep) 0 11px, transparent 12px) 0 0 / 28px 14px repeat-x;
+  height: 14px;
+}
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@utility marquee-track { animation: marquee 30s linear infinite; }
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@utility spin-slow { animation: spin-slow 28s linear infinite; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@utility rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@utility pop { animation: pop 0.3s ease; }
