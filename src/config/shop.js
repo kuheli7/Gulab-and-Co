@@ -19,10 +19,14 @@ export const shop = {
   mapEmbed: 'https://www.google.com/maps?q=Gandhi+Bazaar,+Basavanagudi,+Bengaluru&output=embed',
   instagram: '#',
   currency: '₹',
-  freeDeliveryAbove: 999,
-  deliveryFee: 80,
+  freeDeliveryAbove: 799,
+  deliveryFee: 60,
   sameDayCutoff: '2 pm',
-  announcement: 'Free delivery across Bengaluru on dabbas above ₹999 · Same-day if you order before 2 pm',
+  announcement: 'Free delivery across Bengaluru on dabbas above ₹799 · Same-day if you order before 2 pm',
+  // Optional: send every order into a Google Sheet + email the owner (see apps-script/SETUP.md).
+  // Leave both empty to turn it off. They come from env vars so the secret stays out of git.
+  ordersEndpoint: import.meta.env.VITE_ORDERS_ENDPOINT ?? '',
+  ordersToken: import.meta.env.VITE_ORDERS_TOKEN ?? '',
   // Shown on the site and the footer. Set to false for a real client.
   demoMode: true,
 }

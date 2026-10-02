@@ -17,6 +17,25 @@ export function buildOrder(draft) {
   return { ...draft, id: reference(), createdAt: new Date().toISOString() }
 }
 
+// Optional: also record the order in the shop's Google Sheet (and email the owner) through the
+// Apps Script in /apps-script. Fire-and-forget on purpose: browsers don't let a site read Apps Script's
+// reply, and a failure here must never stop the customer from reaching WhatsApp, which stays the
+// customer's confirmation and the backup. `trap` is the hidden honeypot field; real customers leave it empty.
+export function sendToSheet(order, trap = '') {
+  if (!shop.ordersEndpoint) return
+  try {
+    fetch(shop.ordersEndpoint, {
+      method: 'POST',
+      mode: 'no-cors',
+      keepalive: true, // lets the request finish even while WhatsApp takes over the screen
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // a "simple" request: no CORS preflight, which Apps Script can't answer
+      body: JSON.stringify({ token: shop.ordersToken, website: trap, ...order }),
+    }).catch(() => {})
+  } catch {
+    /* never block the customer */
+  }
+}
+
 export function whatsappOrderUrl(order) {
   const lines = [
     `*New dabba order ${order.id} · ${shop.name}*`,

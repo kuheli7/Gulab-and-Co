@@ -110,9 +110,23 @@ Things to do before using it for a real shop:
 
 ## How an order reaches the shop
 
-Tapping **Send order on WhatsApp** opens WhatsApp to the shop's number with the whole order typed out (a reference like `GC-7K2F`, items, quantities, total, name, phone and address). The customer only has to press Send. **Nothing is stored on a server, so the shop receives the order only when the customer presses Send in WhatsApp.** Payment is on pickup or delivery.
+Tapping **Send order on WhatsApp** opens WhatsApp to the shop's number with the whole order typed out (a reference like `GC-7K2F`, items, quantities, total, name, phone and address). The customer only has to press Send. Payment is on pickup or delivery.
 
-To send orders somewhere automatic later (a Google Sheet, a Telegram bot, Supabase), add the call in `sendOnWhatsApp()` in `src/pages/Dabba.jsx` (the order is built by `buildOrder()` in `src/lib/orders.js`) before WhatsApp opens. A backend would also let the shop see orders even when a customer never presses Send.
+**By default nothing is stored on a server, so the shop receives the order only when the customer presses Send in WhatsApp.**
+
+### Optional: orders into a Google Sheet, with an email alert
+
+For a real shop you can also record every order in the owner's **Google Sheet** and email the owner. This works even if the customer never presses Send in WhatsApp. It's free and has no backend to host. The Apps Script and the 15-minute setup guide are in [`apps-script/`](./apps-script/SETUP.md):
+
+- an **Orders** tab (newest order on top, with a Status dropdown) and a live **Today** tab
+- an email to the owner for each order
+- a secret token, a hidden trap field, input checks, duplicate and rate limits, and protection against formulas being planted in the sheet
+
+**What the shop owner sees:** each order is a row in their sheet, newest on top (names and numbers below are test data):
+
+![Orders in the shop owner's Google Sheet](screenshots/owner-sheet.jpg)
+
+It's off unless the two environment variables `VITE_ORDERS_ENDPOINT` and `VITE_ORDERS_TOKEN` are set (see `.env.example`), so this public demo never writes anywhere.
 
 ## Deploy
 
@@ -132,7 +146,8 @@ src/
   pages/                Home, Sweets, Gifting, Story, Contact, Dabba
   components/           Layout (header, tab bar, footer) and shared pieces
   state/CartContext.jsx the dabba (cart) state
-  lib/                  router and the WhatsApp order message
+  lib/                  router, the WhatsApp order message and the optional sheet hook
+apps-script/            optional Google Sheet + email order intake (Code.gs and SETUP.md)
 public/images/          photos
 screenshots/            images used in this README
 ```
