@@ -134,8 +134,16 @@ export function BottomBar({ path }) {
 }
 
 export function WhatsAppFab() {
+  // Hidden at the very top so it never covers the hero buttons; appears once the visitor scrolls.
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 300)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   return (
-    <a href={chatUrl('Namaste! I have a question about your mithai.')} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="fixed bottom-[5.5rem] right-4 z-30 grid size-13 place-items-center rounded-full border-2 border-gold bg-maroon text-gold shadow-lg shadow-maroon-deep/30 transition-transform hover:scale-105 md:bottom-6 md:right-6 md:size-14">
+    <a href={chatUrl('Namaste! I have a question about your mithai.')} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" tabIndex={show ? 0 : -1} className={`${show ? 'opacity-100' : 'pointer-events-none translate-y-3 opacity-0'} fixed bottom-[5.5rem] right-4 z-30 grid size-13 place-items-center rounded-full border-2 border-gold bg-maroon text-gold shadow-lg shadow-maroon-deep/30 transition-all duration-300 hover:scale-105 md:bottom-6 md:right-6 md:size-14`}>
       <MessageCircle size={24} />
     </a>
   )

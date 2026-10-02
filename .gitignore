@@ -30,3 +30,6 @@ dist-ssr
 Thumbs.db
 .netlify
 .vercel
+
+# Raw full-size screenshots (the README uses the compressed copies in /screenshots)
+Website Screenshots/

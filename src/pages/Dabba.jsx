@@ -66,7 +66,7 @@ export default function Dabba() {
             </div>
           </div>
         ) : (
-          <form onSubmit={place} className="grid gap-6 lg:grid-cols-12">
+          <form onSubmit={place} className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-12">
             <div className="rounded-3xl border border-gold/40 bg-maroon p-5 sm:p-7 lg:col-span-7">
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-2xl">{count} {count > 1 ? 'boxes' : 'box'}</h3>
@@ -77,7 +77,7 @@ export default function Dabba() {
                   <div key={s.id} className="flex items-center gap-3 rounded-2xl bg-maroon-deep/70 p-3">
                     <img src={s.image} alt="" className="size-14 shrink-0 rounded-xl object-cover" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-display text-lg leading-tight">{s.name}</p>
+                      <p className="font-display text-lg leading-tight">{s.name}</p>
                       <p className="text-xs text-cream/50">500 g · {money(s.price)}</p>
                       <div className="mt-1.5 flex items-center gap-1.5 sm:hidden">
                         <Stepper s={s} change={change} />
